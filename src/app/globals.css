@@ -1,26 +1,268 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ───────────── Design tokens ───────────── */
+@theme {
+  --color-obsidian: #08090b;
+  --color-charcoal: #141619;
+  --color-graphite: #24272b;
+  --color-silver: #bfc3c8;
+  --color-mist: #f3f4f6;
+  --color-accent: #287bff;
+  /* Darker shade of the accent for filled buttons: keeps white labels above 4.5:1 contrast. */
+  --color-accent-strong: #1a63e0;
+  --color-line: rgb(255 255 255 / 0.1);
+  --color-line-dark: rgb(8 9 11 / 0.12);
+
+  --font-display: var(--font-sora), "Arial Black", system-ui, sans-serif;
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --container-site: 88rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ───────────── Type scale ───────────── */
+@utility display-xl {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.045em;
+  line-height: 0.86;
+  font-size: clamp(3rem, 10.4vw, 11.5rem);
+}
+@utility display-lg {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  font-size: clamp(2.4rem, 6.6vw, 7rem);
+}
+@utility display-md {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  font-size: clamp(1.9rem, 4.2vw, 4.25rem);
+}
+@utility display-sm {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-size: clamp(1.35rem, 2.2vw, 2.1rem);
+}
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+@utility lede {
+  font-weight: 500;
+  font-size: clamp(1.02rem, 1.25vw, 1.2rem);
+  line-height: 1.6;
+}
+@utility outline-text {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(191 195 200 / 0.55);
+}
+@utility section-pad {
+  padding-block: clamp(5rem, 11vw, 10rem);
+}
+@utility site-x {
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ───────────── Base ───────────── */
+@layer base {
+  html {
+    background: var(--color-obsidian);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-obsidian);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--color-accent);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+  button,
+  [role="button"],
+  [role="tab"] {
+    cursor: pointer;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Lenis smooth scrolling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ───────────── Loader (pure CSS so it can never block access) ───────────── */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--color-obsidian);
+  animation: loader-out 0.7s var(--ease-in-out-quart) 1.15s forwards;
+  pointer-events: none;
+}
+.loader-word {
+  opacity: 0;
+  transform: translateY(0.6em);
+  display: inline-block;
+  animation: loader-word 0.5s var(--ease-out-expo) forwards;
+}
+.loader-bar {
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: loader-bar 1.05s var(--ease-in-out-quart) forwards;
+}
+@keyframes loader-word {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes loader-bar {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes loader-out {
+  to {
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+  }
+}
+.skip-loader .loader {
+  display: none;
+}
+
+/* Pre-hydration states for the hero reveal, with a safety net if JS never runs. */
+.js [data-hero-line] > span {
+  transform: translateY(110%);
+  animation: reveal-fallback 0s linear 4s forwards;
+}
+.js [data-hero-fade] {
+  opacity: 0;
+  animation: reveal-fallback 0s linear 4s forwards;
+}
+@keyframes reveal-fallback {
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Reflective light sweep */
+.light-sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.light-sweep::after {
+  content: "";
+  position: absolute;
+  inset: -20% -60%;
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    rgb(255 255 255 / 0.1) 48%,
+    rgb(255 255 255 / 0.22) 50%,
+    rgb(255 255 255 / 0.1) 52%,
+    transparent 58%
+  );
+  transform: translateX(-60%);
+  animation: sweep 7.5s var(--ease-in-out-quart) 2.2s infinite;
+  mix-blend-mode: soft-light;
+}
+@keyframes sweep {
+  0% {
+    transform: translateX(-60%);
+  }
+  45%,
+  100% {
+    transform: translateX(60%);
+  }
+}
+
+/* Film grain used sparingly on dark sections */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hide scrollbars on horizontally scrollable tab rows */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Native dialog backdrop for the gallery lightbox */
+dialog.lightbox::backdrop {
+  background: rgb(8 9 11 / 0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none;
+  }
+  .js [data-hero-line] > span,
+  .js [data-hero-fade] {
+    transform: none;
+    opacity: 1;
+    animation: none;
+  }
+  .light-sweep::after {
+    animation: none;
+    display: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

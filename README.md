@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Obsidian Detail Studio — premium detailing website (demo)
 
-## Getting Started
-
-First, run the development server:
+Next.js 16 · TypeScript · Tailwind CSS 4 · GSAP + ScrollTrigger · Lenis · Lucide.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # static production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Before going live — owner must supply
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Nothing below has been invented. Missing values render as dashed **"Owner to provide"** tags.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| What | Where |
+| --- | --- |
+| Trading name (the "Obsidian" brand is a demo placeholder), phone, WhatsApp, email, address, hours, service area, review link, social links | `src/content/business.ts` |
+| Set `verified: true` once confirmed (enables LocalBusiness JSON-LD) | `src/content/business.ts` |
+| Production URL | `NEXT_PUBLIC_SITE_URL` env var |
+| Genuine customer reviews only | `reviews` in `src/content/site.ts` |
+| Package inclusions and prices | `packages` in `src/content/site.ts` |
+| Service starting prices (optional) | `startingPrice` in `src/content/services.ts` |
+| Studio photography, plus real before/after pairs | `src/content/media.ts` (currently illustrative Unsplash stock) |
+| Coating packages and warranty, certifications, product brands | Coating and Why Us sections |
+| Logo artwork | `src/components/ui/Logo.tsx`, `src/app/icon.svg` |
+| Privacy and terms review | `src/app/privacy`, `src/app/terms` (templates only) |
 
-## Learn More
+## Booking flow
 
-To learn more about Next.js, take a look at the following resources:
+There is no booking backend. The form validates, then opens WhatsApp (if `whatsapp` is set) or email (if `email` is set) with the enquiry pre-filled. With neither set, it runs in clearly labelled demo mode and sends nothing. The site never shows a booking as confirmed.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/content/*` — all copy and data (services, packages, gallery, journey, business)
+- `src/components/sections/*` — one component per page section
+- `src/app/services/[slug]` — statically generated page for each service (SEO)
+- Motion respects `prefers-reduced-motion`. The horizontal "journey" section pins only on desktop.
